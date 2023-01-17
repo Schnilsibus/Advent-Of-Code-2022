@@ -32,9 +32,8 @@ class Graph:
     def getNode(self, index: int) -> Node:
         return self._nodes[index]
 
-    def getAdjacentNodes(self, index: int) -> list:
-        adjacentNodes = self._adjacencySet[index]
-        return [self._nodes[i] for i in adjacentNodes]
+    def getAdjacentNodes(self, index: int) -> set:
+        return self._adjacencySet[index]
     
     def addNode(self, node: Node = Node()) -> int:
         node.setIndex(index = len(self))
