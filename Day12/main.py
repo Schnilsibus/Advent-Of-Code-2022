@@ -74,66 +74,26 @@ def dijkstra(g: Graph, start: int) -> list:
         del notRelaxed[index]
     return d
 
-def floydWarshall(g: Graph) -> dict:
-    infinity = len(g) + 1
-    d = {(s, e): infinity for s in range(len(g)) for e in range(len(g))}
-    for s in range(len(g)):
-        d[(s, s)] = 0
-        adjacentNodes = g.getAdjacentNodes(index = s)
-        for e in adjacentNodes:
-            d[(s, e)] = 1
-    for w in range(len(g)):
-        for u in range(len(g)):
-            for v in range(len(g)):
-                x = d[(u, w)] + d[(w, v)]
-                if (d[(u, v)] > x):
-                    d[(u, v)] = x
-    return d
+def minDistanceToHeight(g: Graph, map: HeightMap, start: int, height: int, path: list = []) -> int:
+    prefix = "".join(["| "]*len(path))
+    if (map.getHeightOfPos(pos = g[start].getPos()) == height):
+        print(f"{prefix}{start} -> {0}")
+        return 0
+    print(f"{prefix}{start}")
+    adjacentNodes = g.getAdjacentNodes(index = start)
+    nextSteps = [n for n in adjacentNodes if n not in path]
+    path.append(start)
+    distances = [minDistanceToHeight(g=g, map=map, start=n, height=height, path=path) for n in nextSteps]
+    path.remove(start)
+    if (len(distances) == 0):
+        print(f"{prefix}{start} -> {len(g) + 1}")
+        return len(g) + 1
+    else:
+        print(f"{prefix}{start} -> {min(distances) + 1}")
+        return min(distances) + 1
 
-def getAllGroundNodes(m: HeightMap) -> list:
-    groundLevel = []
-    y, x = m.getShape()
-    for i in range(y):
-        for j in range(x):
-            if (m.getHeightOfPos(pos = (i, j)) == 1):
-                groundLevel.append((i, j))
-    return groundLevel
 
-def calculateLevelDistances(level: list, end: int) -> dict:
-    distances = {}
-    for n in level:
-        tBefore = time.time_ns()
-        distances[n] = dijkstra(g = graph, start = n)[end]
-        tAfter = time.time_ns()
-        print(f"done with {n} in {(tAfter - tBefore) / 1000000:.2f} ms")
-    return distances
-
-def specificDijkstraWithAbort(g: Graph, start: int, end: int, maxLength: int) -> int:
-    infinity = len(g) + 1
-    notRelaxed = {n.getIndex():infinity for n in g.getNodes()}
-    notRelaxed[start] = 0
-    while (len(notRelaxed) > 0):
-        index = min(notRelaxed, key = notRelaxed.get)
-        if (index == end):
-            return max([notRelaxed[index], maxLength])
-        adjacentNodes = g.getAdjacentNodes(index = index)
-        for i in adjacentNodes:
-            if (i in notRelaxed):
-                notRelaxed[i] = notRelaxed[index] + 1
-        del notRelaxed[index]
-
-def calculateClosestSquareInLevelWithBranchSkipping(level: list, g: Graph, end: int, maxLength: int) -> dict:
-    currentShortesPathLength = maxLength
-    for n in level:
-        tBefore = time.time_ns()
-        d = specificDijkstraWithAbort(g = g, start = n, end = end, maxLength = maxLength)
-        if (currentShortesPathLength > d):
-            currentShortesPathLength = d
-        tAfter = time.time_ns()
-        print(f"done with {n} in {(tAfter - tBefore) / 1000000:.2f} ms")
-    return currentShortesPathLength
-
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\MyInput.txt", "r") as file:
     input = removeNewLines(input = file.readlines())
 startPos = findStartAndEnd(input = input)["start"]
 endPos = findStartAndEnd(input = input)["end"]
@@ -142,6 +102,4 @@ graph = convertHeightMapToGraph(map = map)["graph"]
 posIndexMap = convertHeightMapToGraph(map = map)["posIndexMap"]
 distancesFromStart = dijkstra(g = graph, start = posIndexMap[startPos])
 print(f"The fewest number of steps to get to the location with the best signal is {distancesFromStart[posIndexMap[endPos]]}")
-groundLevel = [posIndexMap[pos] for pos in getAllGroundNodes(m = map)]
-minDist = calculateLevelDistances(level = groundLevel, end = posIndexMap[endPos])
-print(f"The fewest number of steps to get to the location with the best signal from any square with elevation a is {minDist}")
+print(minDistanceToHeight(g=graph, map=map, start=posIndexMap[endPos], height=1))

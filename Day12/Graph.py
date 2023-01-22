@@ -26,6 +26,9 @@ class Graph:
     def __len__(self):
         return len(self._nodes)
 
+    def __getitem__(self, key):
+        return self._nodes[key]
+
     def getNodes(self) -> list:
         return self._nodes
 
