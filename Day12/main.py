@@ -48,16 +48,35 @@ def convertHeightMapToGraph(map: HeightMap) -> dict:
             posIndexMap[(i, j)] = index
     for node in graph:
         pos = node.getPos()
-        posibleSteps = map.getPossibleSteps(pos = pos)
-        if (posibleSteps["up"]):
+        possibleSteps = map.getPossibleSteps(pos = pos)
+        if (possibleSteps["up"]):
             graph.addAdjacentNode(tailIndex = node.getIndex(), headIndex = posIndexMap[(pos[0] - 1, pos[1])], bidirectional = False)
-        if (posibleSteps["down"]):
+        if (possibleSteps["down"]):
             graph.addAdjacentNode(tailIndex = node.getIndex(), headIndex = posIndexMap[(pos[0] + 1, pos[1])], bidirectional = False)
-        if (posibleSteps["left"]):
+        if (possibleSteps["left"]):
             graph.addAdjacentNode(tailIndex = node.getIndex(), headIndex = posIndexMap[(pos[0], pos[1] - 1)], bidirectional = False)
-        if (posibleSteps["right"]):
+        if (possibleSteps["right"]):
             graph.addAdjacentNode(tailIndex = node.getIndex(), headIndex = posIndexMap[(pos[0], pos[1] + 1)], bidirectional = False)
     return {"graph": graph, "posIndexMap": posIndexMap}
+
+def convertHeightMapToInvertedGraph(map: HeightMap, posIndexMap: list, orgGraph: Graph) -> Graph:
+    y, x = map.getShape()
+    graph = Graph()
+    for n in orgGraph:
+        graph.addNode(n) # possible error source (maybe iterator changes order then old map n other stuff dont work)
+        pos = n.getPos()
+        possibleSteps = map.getPossibleInvertedSteps(pos = pos)
+        if (possibleSteps["up"]):
+            graph.addAdjacentNode(tailIndex = n.getIndex(), headIndex = posIndexMap[(pos[0] - 1, pos[1])], bidirectional = False)
+        if (possibleSteps["down"]):
+            graph.addAdjacentNode(tailIndex = n.getIndex(), headIndex = posIndexMap[(pos[0] + 1, pos[1])], bidirectional = False)
+        if (possibleSteps["left"]):
+            graph.addAdjacentNode(tailIndex = n.getIndex(), headIndex = posIndexMap[(pos[0], pos[1] - 1)], bidirectional = False)
+        if (possibleSteps["right"]):
+            graph.addAdjacentNode(tailIndex = n.getIndex(), headIndex = posIndexMap[(pos[0], pos[1] + 1)], bidirectional = False)
+    return graph
+
+
         
 def dijkstra(g: Graph, start: int) -> list:
     infinity = len(g) + 1
@@ -74,26 +93,7 @@ def dijkstra(g: Graph, start: int) -> list:
         del notRelaxed[index]
     return d
 
-def minDistanceToHeight(g: Graph, map: HeightMap, start: int, height: int, path: list = []) -> int:
-    prefix = "".join(["| "]*len(path))
-    if (map.getHeightOfPos(pos = g[start].getPos()) == height):
-        print(f"{prefix}{start} -> {0}")
-        return 0
-    print(f"{prefix}{start}")
-    adjacentNodes = g.getAdjacentNodes(index = start)
-    nextSteps = [n for n in adjacentNodes if n not in path]
-    path.append(start)
-    distances = [minDistanceToHeight(g=g, map=map, start=n, height=height, path=path) for n in nextSteps]
-    path.remove(start)
-    if (len(distances) == 0):
-        print(f"{prefix}{start} -> {len(g) + 1}")
-        return len(g) + 1
-    else:
-        print(f"{prefix}{start} -> {min(distances) + 1}")
-        return min(distances) + 1
-
-
-with open(os.path.dirname(__file__) + "\\MyInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
     input = removeNewLines(input = file.readlines())
 startPos = findStartAndEnd(input = input)["start"]
 endPos = findStartAndEnd(input = input)["end"]
@@ -102,4 +102,6 @@ graph = convertHeightMapToGraph(map = map)["graph"]
 posIndexMap = convertHeightMapToGraph(map = map)["posIndexMap"]
 distancesFromStart = dijkstra(g = graph, start = posIndexMap[startPos])
 print(f"The fewest number of steps to get to the location with the best signal is {distancesFromStart[posIndexMap[endPos]]}")
-print(minDistanceToHeight(g=graph, map=map, start=posIndexMap[endPos], height=1))
+invertedGraph = convertHeightMapToInvertedGraph(map = map, posIndexMap = posIndexMap, orgGraph = graph)
+distancesFromEnd = dijkstra(g = invertedGraph, start = posIndexMap[endPos])
+print(distancesFromEnd[posIndexMap[startPos]])
