@@ -34,18 +34,17 @@ class HeightMap:
 
     def getPossibleInvertedSteps(self, pos: tuple) -> dict:
         y, x = pos
-        possibleSteps = self.getPossibleSteps(pos = pos)
+        possibleSteps = {"up": False, "down": False, "left": False, "right": False, }
         minAccessibleHeight = self._map[y][x] - 1
-        if (possibleSteps["up"] and self._map[y - 1][x] < minAccessibleHeight):
-            possibleSteps["up"] = False
-        if (possibleSteps["down"] and self._map[y + 1][x] < minAccessibleHeight):
-            possibleSteps["down"] = False
-        if (possibleSteps["left"] and self._map[y][x - 1] < minAccessibleHeight):
-            possibleSteps["left"] = False
-        if (possibleSteps["right"]and self._map[y][x + 1] < minAccessibleHeight):
-            possibleSteps["right"] = False
+        if (y - 1 >= 0 and self._map[y - 1][x] >= minAccessibleHeight):
+            possibleSteps["up"] = True
+        if (y + 1 < self._height and self._map[y + 1][x] >= minAccessibleHeight):
+            possibleSteps["down"] = True
+        if (x - 1 >= 0 and self._map[y][x - 1] >= minAccessibleHeight):
+            possibleSteps["left"] = True
+        if (x + 1 < self._width and self._map[y][x + 1] >= minAccessibleHeight):
+            possibleSteps["right"] = True
         return possibleSteps
-
 
     def getShape(self) -> tuple:
         return (self._height, self._width)

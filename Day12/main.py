@@ -75,8 +75,6 @@ def convertHeightMapToInvertedGraph(map: HeightMap, posIndexMap: list, orgGraph:
         if (possibleSteps["right"]):
             graph.addAdjacentNode(tailIndex = n.getIndex(), headIndex = posIndexMap[(pos[0], pos[1] + 1)], bidirectional = False)
     return graph
-
-
         
 def dijkstra(g: Graph, start: int) -> list:
     infinity = len(g) + 1
@@ -93,6 +91,14 @@ def dijkstra(g: Graph, start: int) -> list:
         del notRelaxed[index]
     return d
 
+def getLevel(g: Graph, map: HeightMap, posTable: dict, height: int) -> list:
+    level = []
+    for i in range(len(g)):
+        if (map.getHeightOfPos(pos = g[i].getPos()) == height):
+            level.append(i)
+    return level
+
+
 with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
     input = removeNewLines(input = file.readlines())
 startPos = findStartAndEnd(input = input)["start"]
@@ -103,5 +109,7 @@ posIndexMap = convertHeightMapToGraph(map = map)["posIndexMap"]
 distancesFromStart = dijkstra(g = graph, start = posIndexMap[startPos])
 print(f"The fewest number of steps to get to the location with the best signal is {distancesFromStart[posIndexMap[endPos]]}")
 invertedGraph = convertHeightMapToInvertedGraph(map = map, posIndexMap = posIndexMap, orgGraph = graph)
+groundLevel = getLevel(g = invertedGraph, map = map, posTable = posIndexMap, height = 1)
 distancesFromEnd = dijkstra(g = invertedGraph, start = posIndexMap[endPos])
-print(distancesFromEnd[posIndexMap[startPos]])
+distancesToGroundLevel = [distancesFromEnd[i] for i in range(len(distancesFromEnd)) if i in groundLevel]
+print(f"The fewest number of steps to the locaion with the best signal from any point with elevation a is {min(distancesToGroundLevel)}")
