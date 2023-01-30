@@ -2,7 +2,6 @@ from HeightMap import HeightMap
 from Graph import Graph
 from PosNode import PosNode
 import os
-import time
 
 def removeNewLines(input: list) -> list:
     for i in range(len(input)):
