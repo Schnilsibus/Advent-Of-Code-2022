@@ -12,13 +12,13 @@ class CaveScan:
     def addLine(self, startPos: tuple, endPos: tuple):
         def constuctVerticalLine() -> list:
             line = []
-            for yOffset in range(abs(startPos[1]-endPos[1]) + 1):
+            for yOffset in range(abs(startPos[1] - endPos[1]) + 1):
                 line.append((startPos[0], startPos[1] + yOffset))
             return line
         def constuctHorizontalLine() -> list:
             line = []
-            for xOffset in range(abs(startPos[0]-endPos[0]) + 1):
-                line.append((startPos[0] + xOffset, startPos[1]))
+            for xOffset in range(abs(startPos[0] - endPos[0]) + 1):
+                line.append((startPos[0] - xOffset, startPos[1]))
             return line
         if (startPos[0] == endPos[0]):
             line = constuctVerticalLine()
@@ -34,7 +34,7 @@ class CaveScan:
         return pos in self._stonePoints.keys()
 
     def getSection(self, upperLeft: tuple, lowerRight: tuple) -> list:
-        n, m = lowerRight[0] - upperLeft[0], lowerRight[1] - upperLeft[1]
+        n, m = lowerRight[0] - upperLeft[0] + 1, lowerRight[1] - upperLeft[1] + 1
         section = list()
         for i in range(m):
             section.append(list())
