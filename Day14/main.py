@@ -11,18 +11,22 @@ def readInupt(path: str) -> list:
 
 
 def solvePart1() -> str:
-    from CaveSystem import CaveScan, Position
+    from CaveSystem import CaveScan
     input = readInupt(path = "\\Example.txt")
-    def convertInputToCaveScan(input: list):
+    def convertInputToCaveScan(input: list) -> CaveScan:
         paths = []
         for inputLine in input:
             positions = []
             posStrings = inputLine.split(" -> ")
             for posString in posStrings:
                 x, y = [int(s) for s in posString.split(",")]
-                positions.append(Position(x = x, y = y))
+                positions.append((x, y))
             paths.append(positions)
         print(paths)
+        scan = CaveScan()
+        for path in paths:
+            scan.addPath(path)
+        print(scan.getSectionAsString(upperLeft = (494, 0), lowerRight = (503, 9)))
     caveScan = convertInputToCaveScan(input = input)
     return "not solved"
 
