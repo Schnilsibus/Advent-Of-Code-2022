@@ -11,9 +11,9 @@ def readInupt(path: str) -> list:
 
 
 def solvePart1() -> str:
-    from CaveSystem import CaveScan
-    input = readInupt(path = "\\Example.txt")
-    def convertInputToCaveScan(input: list) -> CaveScan:
+    from CaveSystem import CaveStoneScan, Simulation
+    input = readInupt(path = "\\PuzzleInput.txt")
+    def convertInputToCaveStoneScan(input: list) -> CaveStoneScan:
         paths = []
         for inputLine in input:
             positions = []
@@ -22,13 +22,17 @@ def solvePart1() -> str:
                 x, y = [int(s) for s in posString.split(",")]
                 positions.append((x, y))
             paths.append(positions)
-        print(paths)
-        scan = CaveScan()
+        scan = CaveStoneScan()
         for path in paths:
             scan.addPath(path)
-        print(scan.getSectionAsString(upperLeft = (494, 0), lowerRight = (503, 9)))
-    caveScan = convertInputToCaveScan(input = input)
-    return "not solved"
+        return scan
+    caveScan = convertInputToCaveStoneScan(input = input)
+    simulation = Simulation(stoneScan = caveScan, spawn = (500, 0))
+    upperLeft, lowerRight = (caveScan.getMostLeftX(), 0), (caveScan.getMostRightX(), caveScan.getLowestY())
+    simulation.simulate(singleStep = False)
+    print(simulation.sectionToString(upperLeft = upperLeft, lowerRight = lowerRight))
+    # Animation / simulation looks fine --> error probably in the conversion of input to CaveStoneScan
+    return f"{str(simulation.getCementedGrainsCount())} units of sand come to rest before the sand flows into the abyss below"
 
 def solvePart2() -> str:
     return "not solved"

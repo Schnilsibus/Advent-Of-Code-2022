@@ -1,6 +1,12 @@
-class CaveScan:
+class CaveStoneScan:
     def __init__(self):
         self._stonePoints = {}
+
+    def __eq__(self, other):
+        if (isinstance(other, self.__class__)):
+            return self._stonePoints == other._stonePoints
+        else:
+            return False
     
     def addStonePoint(self, pos: tuple):
         self._stonePoints[pos] = None
@@ -33,20 +39,131 @@ class CaveScan:
     def isStone(self, pos: tuple):
         return pos in self._stonePoints.keys()
 
-    def getSection(self, upperLeft: tuple, lowerRight: tuple) -> list:
-        n, m = lowerRight[0] - upperLeft[0] + 1, lowerRight[1] - upperLeft[1] + 1
-        section = list()
-        for i in range(m):
-            section.append(list())
-            for j in range(n):
-                pos = (upperLeft[0] + j, upperLeft[1] + i)
-                section[i].append(True if self.isStone(pos = pos) else False)
-        return section
+    def getLowestY(self):
+        allYs = [p[1] for p in list(self._stonePoints.keys())]
+        return max(allYs)
+    
+    def getMostLeftX(self):
+         allXs = [p[0] for p in list(self._stonePoints.keys())]
+         return min(allXs)
 
-    def getSectionAsString(self, upperLeft: tuple, lowerRight: tuple) -> str:
-        section = self.getSection(upperLeft = upperLeft, lowerRight = lowerRight)
-        for i in range(len(section)):
-            line = section[i]
-            line = ["#" if pos == True else "." for pos in line]
-            section[i] = "".join(line)
-        return "\n".join(section)
+    def getMostRightX(self):
+        allXs = [p[0] for p in list(self._stonePoints.keys())]
+        return max(allXs)
+
+class CaveSandScan:
+    def __init__(self):
+        self._sandPoints = {}
+
+    def __eq__(self, other):
+        if (isinstance(other, self.__class__)):
+            return self._sandPoints == other._sandPoints
+        else:
+            return False
+    
+    def addSandPoint(self, pos: tuple):
+        self._sandPoints[pos] = None
+    
+    def isSand(self, pos: tuple):
+        return pos in self._sandPoints.keys()
+
+    def getGrainCount(self) -> int:
+        return len(self._sandPoints)
+
+class Simulation:
+    def __init__(self, stoneScan: CaveStoneScan, spawn: tuple):
+        self._stoneScan = stoneScan
+        self._sandScan = CaveSandScan()
+        self._previousSimulatedGrainPosition = tuple()
+        self._latestSimulatedGrainPosition = tuple()
+        self._spawn = spawn
+        self._abyss = self._stoneScan.getLowestY() + 1
+        self.spawnSimulatedGrain()
+
+    def spawnSimulatedGrain(self):
+        self._latestSimulatedGrainPosition = self._spawn
+
+    def cementSimulatedGrain(self):
+        self._sandScan.addSandPoint(self._latestSimulatedGrainPosition)
+
+    def isBlocked(self, pos: tuple) -> bool:
+        return self._stoneScan.isStone(pos = pos) or self._sandScan.isSand(pos = pos)
+
+    def hasSimulatedGrainMoved(self):
+        return not self._latestSimulatedGrainPosition == self._previousSimulatedGrainPosition
+
+    def hasSimulatedGrainFallenToAbyss(self):
+        return self._latestSimulatedGrainPosition[1] >= self._abyss
+
+    def swapGrainPositions(self):
+        self._latestSimulatedGrainPosition, self._previousSimulatedGrainPosition = self._previousSimulatedGrainPosition, self._latestSimulatedGrainPosition
+
+    def moveSimulatedGrain(self):
+        x, y = self._latestSimulatedGrainPosition[0], self._latestSimulatedGrainPosition[1]
+        if (not self.isBlocked(pos = (x, y + 1))):
+            self._previousSimulatedGrainPosition = (x, y + 1)
+        elif (not self.isBlocked(pos = (x - 1, y + 1))):
+            self._previousSimulatedGrainPosition = (x - 1, y + 1)
+        elif (not self.isBlocked(pos = (x + 1, y + 1))):
+            self._previousSimulatedGrainPosition = (x + 1, y + 1)
+        else:
+            self._previousSimulatedGrainPosition = self._latestSimulatedGrainPosition
+        self.swapGrainPositions()
+
+    def sectionToString(self, upperLeft: tuple, lowerRight: tuple) -> str:
+        strBuilder = ""
+        for i in range(upperLeft[1], lowerRight[1] + 1, 1):
+            for j in range(upperLeft[0], lowerRight[0] + 1 , 1):
+                if (self._spawn == (j, i)):
+                    strBuilder += "+"
+                elif (self._latestSimulatedGrainPosition == (j, i)):
+                    strBuilder += "o"
+                elif(self._sandScan.isSand(pos = (j, i))):
+                    strBuilder += "0"
+                elif(self._stoneScan.isStone(pos = (j, i))):
+                    strBuilder += "#"
+                else:
+                    strBuilder += "."
+            strBuilder += "\n"
+        return strBuilder
+    
+    def simulateStep(self) -> bool:
+        self.moveSimulatedGrain()
+        if (not self.hasSimulatedGrainMoved()):
+            self.cementSimulatedGrain()
+            self.spawnSimulatedGrain()
+            return False
+        return True
+
+    def simulateGrain(self):
+        while(self.simulateStep() and not self.hasSimulatedGrainFallenToAbyss()): pass
+
+    def animate(self, singleStep: bool, upperLeft: tuple, lowerRight: tuple, fps: int, n: int = 0):
+        from os import system
+        from time import sleep
+        execute = self.simulateStep if singleStep else self.simulateGrain
+        if (n == 0):
+            while (not self.hasSimulatedGrainFallenToAbyss()):
+                execute()
+                sleep(1.0/fps)
+                system("cls")
+                print(self.sectionToString(upperLeft = upperLeft, lowerRight = lowerRight))
+        else:
+            for i in range(n):
+                execute()
+                sleep(1.0/fps)
+                system("cls")
+                print(self.sectionToString(upperLeft = upperLeft, lowerRight = lowerRight))
+
+    def simulate(self, singleStep: bool, n: int = 0):
+        execute = self.simulateStep if singleStep else self.simulateGrain
+        if (n == 0):
+            while (not self.hasSimulatedGrainFallenToAbyss()):
+                execute()
+        else:
+            for i in range(n):
+                execute()
+
+    def getCementedGrainsCount(self):
+        return self._sandScan.getGrainCount()
+        
