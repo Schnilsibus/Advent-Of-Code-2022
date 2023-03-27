@@ -1,6 +1,7 @@
 class CaveStoneScan:
     def __init__(self):
         self._stonePoints = {}
+        self.floorLevel = 0
 
     def __eq__(self, other):
         if (isinstance(other, self.__class__)):
@@ -10,6 +11,8 @@ class CaveStoneScan:
     
     def addStonePoint(self, pos: tuple):
         self._stonePoints[pos] = None
+        if (pos[1] + 2 > self.floorLevel):
+            self.floorLevel = pos[1] + 2
 
     def addStonePoints(self, positions: list):
         for pos in positions:
@@ -18,13 +21,21 @@ class CaveStoneScan:
     def addLine(self, startPos: tuple, endPos: tuple):
         def constuctVerticalLine() -> list:
             line = []
-            for yOffset in range(abs(startPos[1] - endPos[1]) + 1):
-                line.append((startPos[0], startPos[1] + yOffset))
+            if (startPos[1] < endPos[1]):
+                for yCoord in range(startPos[1], endPos[1] + 1):
+                    line.append((startPos[0], yCoord))
+            else:
+                for yCoord in range(endPos[1], startPos[1] + 1):
+                    line.append((startPos[0], yCoord))
             return line
         def constuctHorizontalLine() -> list:
             line = []
-            for xOffset in range(abs(startPos[0] - endPos[0]) + 1):
-                line.append((startPos[0] - xOffset, startPos[1]))
+            if (startPos[0] < endPos[0]):
+                for xCoord in range(startPos[0], endPos[0] + 1):
+                    line.append((xCoord, startPos[1]))
+            else:
+                for xCoord in range(endPos[0], startPos[0] + 1):
+                    line.append((xCoord, startPos[1]))
             return line
         if (startPos[0] == endPos[0]):
             line = constuctVerticalLine()
@@ -37,7 +48,10 @@ class CaveStoneScan:
             self.addLine(startPos = points[i -1], endPos = points[i])
 
     def isStone(self, pos: tuple):
-        return pos in self._stonePoints.keys()
+        return pos[1] == self.floorLevel or pos in self._stonePoints.keys()
+    
+    def getFloorY(self):
+        return self.floorLevel
 
     def getLowestY(self):
         allYs = [p[1] for p in list(self._stonePoints.keys())]
@@ -71,13 +85,14 @@ class CaveSandScan:
         return len(self._sandPoints)
 
 class Simulation:
-    def __init__(self, stoneScan: CaveStoneScan, spawn: tuple):
+    def __init__(self, stoneScan: CaveStoneScan, spawn: tuple, ignoreFloor: bool):
         self._stoneScan = stoneScan
         self._sandScan = CaveSandScan()
         self._previousSimulatedGrainPosition = tuple()
         self._latestSimulatedGrainPosition = tuple()
         self._spawn = spawn
         self._abyss = self._stoneScan.getLowestY() + 1
+        self._ignoreFloor = ignoreFloor
         self.spawnSimulatedGrain()
 
     def spawnSimulatedGrain(self):
@@ -94,6 +109,15 @@ class Simulation:
 
     def hasSimulatedGrainFallenToAbyss(self):
         return self._latestSimulatedGrainPosition[1] >= self._abyss
+    
+    def isSpawnCemented(self):
+        return self._sandScan.isSand(pos = self._spawn)
+    
+    def hasSimulationFinished(self):
+        if (self._ignoreFloor):
+            return self.hasSimulatedGrainFallenToAbyss()
+        else:
+            return self.isSpawnCemented()
 
     def swapGrainPositions(self):
         self._latestSimulatedGrainPosition, self._previousSimulatedGrainPosition = self._previousSimulatedGrainPosition, self._latestSimulatedGrainPosition
@@ -136,20 +160,23 @@ class Simulation:
         return True
 
     def simulateGrain(self):
-        while(self.simulateStep() and not self.hasSimulatedGrainFallenToAbyss()): pass
+        while (self.simulateStep() and not (self._ignoreFloor and self.hasSimulatedGrainFallenToAbyss())):
+            pass
 
     def animate(self, singleStep: bool, upperLeft: tuple, lowerRight: tuple, fps: int, n: int = 0):
         from os import system
         from time import sleep
         execute = self.simulateStep if singleStep else self.simulateGrain
         if (n == 0):
-            while (not self.hasSimulatedGrainFallenToAbyss()):
+            while (not self.hasSimulationFinished()):
                 execute()
                 sleep(1.0/fps)
                 system("cls")
                 print(self.sectionToString(upperLeft = upperLeft, lowerRight = lowerRight))
         else:
             for i in range(n):
+                if (self.isSpawnCemented()):
+                    break
                 execute()
                 sleep(1.0/fps)
                 system("cls")
@@ -158,7 +185,7 @@ class Simulation:
     def simulate(self, singleStep: bool, n: int = 0):
         execute = self.simulateStep if singleStep else self.simulateGrain
         if (n == 0):
-            while (not self.hasSimulatedGrainFallenToAbyss()):
+            while (not self.hasSimulationFinished()):
                 execute()
         else:
             for i in range(n):

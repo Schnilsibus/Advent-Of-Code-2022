@@ -1,3 +1,5 @@
+from CaveSystem import CaveStoneScan, Simulation
+
 def readInupt(path: str) -> list:
     def removeNewLines(input: list) -> list:
         for i in range(len(input)):
@@ -9,11 +11,7 @@ def readInupt(path: str) -> list:
         input = removeNewLines(input = file.readlines())
     return input
 
-
-def solvePart1() -> str:
-    from CaveSystem import CaveStoneScan, Simulation
-    input = readInupt(path = "\\PuzzleInput.txt")
-    def convertInputToCaveStoneScan(input: list) -> CaveStoneScan:
+def convertInputToCaveStoneScan(input: list) -> CaveStoneScan:
         paths = []
         for inputLine in input:
             positions = []
@@ -26,17 +24,23 @@ def solvePart1() -> str:
         for path in paths:
             scan.addPath(path)
         return scan
+
+def solvePart1() -> str:
+    input = readInupt(path = "\\PuzzleInput.txt")
     caveScan = convertInputToCaveStoneScan(input = input)
-    simulation = Simulation(stoneScan = caveScan, spawn = (500, 0))
-    upperLeft, lowerRight = (caveScan.getMostLeftX(), 0), (caveScan.getMostRightX(), caveScan.getLowestY())
+    simulation = Simulation(stoneScan = caveScan, spawn = (500, 0), ignoreFloor = True)
     simulation.simulate(singleStep = False)
-    print(simulation.sectionToString(upperLeft = upperLeft, lowerRight = lowerRight))
-    # Animation / simulation looks fine --> error probably in the conversion of input to CaveStoneScan
-    return f"{str(simulation.getCementedGrainsCount())} units of sand come to rest before the sand flows into the abyss below"
+    return f"{str(simulation.getCementedGrainsCount())} units of sand came to rest before the sand flows into the abyss below"
 
 def solvePart2() -> str:
-    return "not solved"
-
+    input = readInupt(path = "\\PuzzleInput.txt")
+    caveScan = convertInputToCaveStoneScan(input = input)
+    floorY = caveScan.getFloorY()
+    leftX = caveScan.getMostLeftX()
+    rightX = caveScan.getMostRightX()
+    simulation = Simulation(stoneScan = caveScan, spawn = (500, 0), ignoreFloor = False)
+    simulation.simulate(singleStep = False)
+    return f"{str(simulation.getCementedGrainsCount())} units of sand came to rest before the source of the sand becomes blocked"
 
 print(solvePart1())
 print(solvePart2())
