@@ -40,7 +40,6 @@ def solvePart2() -> str:
     seperators = [Packet(rawData = [[2]]), Packet(rawData = [[6]])]
     packets.extend(seperators)
     import functools
-    print("-------------------------------------")
     packets.sort(key = functools.cmp_to_key(Packet.__cmp__))
     return f"The decoder key is {(packets.index(seperators[0]) + 1) * (packets.index(seperators[1]) + 1)}"
 

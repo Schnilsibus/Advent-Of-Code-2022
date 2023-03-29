@@ -1,5 +1,8 @@
 from SensorBeaconMap import Map
 
+files = {"input": "PuzzleInput", "example": "Example"}
+lineYs = {"input": 2000000, "example": 10}
+
 def readInupt(path: str) -> list:
     def removeNewLines(input: list) -> list:
         for i in range(len(input)):
@@ -24,12 +27,10 @@ def convertInput(input: list):
     return map
 
 def solvePart1() -> str:
-    # idea: for all pairs check if it is even in range; calculate the two out most posisitons on the line; fill in the rest --> do brnach skipping
-    lineY = 2000000
-    map = convertInput(input = readInupt(path = "\\PuzzleInput.txt"))
-    impossiblePos = map.getimpossibleBeaconPositionsInLine(lineY = lineY)
-    print(f"\n\n{len(impossiblePos)}\n")
-    return "notsolved"
+    run = "input"
+    map = convertInput(input = readInupt(path = f"\\{files[run]}.txt"))
+    result = map.getimpossibleBeaconPositionsInLine(lineY = lineYs[run])
+    return f"In the line with y={lineYs[run]} are {len(result)} positions that cannot contain a beacon"
 
 def solvePart2() -> str:
     return "notsolved"
