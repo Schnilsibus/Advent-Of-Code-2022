@@ -1,3 +1,5 @@
+import time
+
 def manhattenDistance(pointA: tuple, pointB: tuple) -> int:
     return abs(pointB[0] - pointA[0]) + abs(pointB[1] - pointA[1])
 
@@ -16,7 +18,7 @@ class SensorBeaconPair:
     def getManhattenDist(self) -> int:
         return manhattenDistance(self._sensorPos, self._beaconPos)
     
-    def getAllImpossiblePositions(self, lineY: int) -> set:
+    def getAllImpossiblePositionsInLine(self, lineY: int) -> set:
         dist = self.getManhattenDist()
         if (abs(self._sensorPos[1] - lineY) > dist):
             return []
@@ -42,11 +44,31 @@ class Map:
     def addPair(self, sensorPos: tuple, beaconPos: tuple):
         self._pairs.append(SensorBeaconPair(sensorPos = sensorPos, beaconPos = beaconPos))
 
-    def getimpossibleBeaconPositionsInLine(self, lineY: int) -> set:
+    def getImpossibleBeaconPositionsInLine(self, lineY: int) -> set:
         allImpossiblePos = []
         for pair in self._pairs:
-            sensorImpossiblePos = pair.getAllImpossiblePositions(lineY = lineY)
+            sensorImpossiblePos = pair.getAllImpossiblePositionsInLine(lineY = lineY)
             for pos in sensorImpossiblePos:
                 if (pos[1] == lineY):
                     allImpossiblePos.append(pos)
         return set(allImpossiblePos)
+    
+    def getOnlyPossiblePosition(self, maxDist: int) -> tuple:
+        for x in range(maxDist + 1):
+            starttime = time.time()
+            for y in range(maxDist + 1):
+                isImpossible = False
+                for pair in self._pairs:
+                    if (manhattenDistance((x, y), pair._sensorPos) <= pair.getManhattenDist()):
+                        isImpossible = True
+                        break
+                if (not isImpossible):
+                    return (x,y)
+            duration  = (time.time() - starttime) * 1000
+            print(f"completed x={x} in {duration} ms --> {(4*10**6 - x + 1) * duration / (1000 * 60 * 60)} h left")
+    
+    def getCountImpossiblePositions(self) -> int:
+        cnt = 0
+        for pair in self._pairs:
+            cnt += (pair.getManhattenDist() + 1) ** 2
+        return cnt

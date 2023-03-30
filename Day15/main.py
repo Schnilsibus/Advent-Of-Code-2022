@@ -1,7 +1,9 @@
-from SensorBeaconMap import Map
+from SensorBeaconMap import Map, tuningFrequency
 
 files = {"input": "PuzzleInput", "example": "Example"}
 lineYs = {"input": 2000000, "example": 10}
+maxDists = {"input": 4000000, "example": 20}
+run = "input"
 
 def readInupt(path: str) -> list:
     def removeNewLines(input: list) -> list:
@@ -27,13 +29,15 @@ def convertInput(input: list):
     return map
 
 def solvePart1() -> str:
-    run = "input"
     map = convertInput(input = readInupt(path = f"\\{files[run]}.txt"))
-    result = map.getimpossibleBeaconPositionsInLine(lineY = lineYs[run])
+    result = map.getImpossibleBeaconPositionsInLine(lineY = lineYs[run])
     return f"In the line with y={lineYs[run]} are {len(result)} positions that cannot contain a beacon"
 
 def solvePart2() -> str:
-    return "notsolved"
+    map = convertInput(input = readInupt(path = f"\\{files[run]}.txt"))
+    print(f"maxDist: {maxDists[run]}, cntTotalPos: {maxDists[run] ** 2}, cntImpossiblePos: {map.getCountImpossiblePositions()}")
+    pos = map.getOnlyPossiblePosition(maxDist = maxDists[run])
+    return f"The only possible position for the disstress beacon is {pos} its tuningfrequency is {tuningFrequency(beaconPos = pos)}"
 
 print(solvePart1())
 print(solvePart2())
