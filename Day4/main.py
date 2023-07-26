@@ -18,7 +18,7 @@ def checkOverlap(a, b) -> int:
     else:
         return 2
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     cntTotal = 0
     cntAtAll = 0
     for line in file:

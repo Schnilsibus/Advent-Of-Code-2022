@@ -45,7 +45,7 @@ def renderImage(programm: list) -> str:
         crt.doCycle(x=x)
     return crt.getScreen()
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     input = file.readlines()
 programm = convertInput(input=input)
 cyclesOfInterest = [20, 60, 100, 140, 180, 220]

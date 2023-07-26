@@ -119,7 +119,7 @@ def findTreeWithHighesScore(grid: list) -> tuple:
     return currentPos
 
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     input = file.readlines()
 
 grid = constructGrid(input=input)

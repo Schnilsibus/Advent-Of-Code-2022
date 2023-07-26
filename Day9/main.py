@@ -69,7 +69,7 @@ def simulateRope(sequence: list, knots: int) -> set:
         visitedPos.update(simulateCommand(pos=pos, command=cmd, knots=knots))
     return visitedPos
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     input = file.readlines()
 
 sequence = convertInput(input=input)

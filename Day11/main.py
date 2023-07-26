@@ -37,7 +37,7 @@ def convertInput(input: list) -> MonkeyGroup:
             monkey = {}
     return MonkeyGroup(monkeys)
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     input = file.readlines()
 monkeys = convertInput(input=input)
 monkeys.doRounds(n=20, worryDecrease=True)

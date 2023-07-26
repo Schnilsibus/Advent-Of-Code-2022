@@ -15,7 +15,7 @@ def getMaxOfDict(d: dict, n: int) -> list:
 currentElfIndex = 1
 currentElfCalories = 0
 elfs = {}
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     for line in file:
         if (line.endswith("\n")):
             line = line[:len(line) - 1]

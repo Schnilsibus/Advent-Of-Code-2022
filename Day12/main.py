@@ -98,7 +98,7 @@ def getLevel(g: Graph, map: HeightMap, posTable: dict, height: int) -> list:
     return level
 
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     input = removeNewLines(input = file.readlines())
 startPos = findStartAndEnd(input = input)["start"]
 endPos = findStartAndEnd(input = input)["end"]

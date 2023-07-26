@@ -36,7 +36,7 @@ def getNewPlays(s: str) -> tuple:
     return (oppPlays.get(l[0]), (oppPlays.get(l[0]) - 1 + WinOrLose.get(l[1])) % 3 + 1)
 
 oldScore, newScore = 0,0
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     for line in file:
         if (line.endswith("\n")):
             line = line[:len(line) - 1]

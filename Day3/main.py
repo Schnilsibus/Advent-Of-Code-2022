@@ -70,7 +70,7 @@ def findCommonElementsOfSortedLists(t: list) -> list:
         
     return commonElements
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     wrongItems = list()
     for line in file:
         if (line.endswith("\n")):
@@ -79,7 +79,7 @@ with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
         wrongItems.append(findCommonElementOfSortedLists(compartment1, compartment2))
 print(f"The sum of the priorities of all items in both compartments is {sum(wrongItems)}.")
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     cnt = 0
     group = [None] * 3
     allBadges = []

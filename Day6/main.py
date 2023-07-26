@@ -1,6 +1,6 @@
 import os
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     input = file.read()
 for i in range(3, len(input)):
     l = set(list(input[i-3:i+1]))

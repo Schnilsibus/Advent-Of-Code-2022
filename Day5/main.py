@@ -43,7 +43,7 @@ def execute9001(stacks, seqence):
     for step in sequence:
         executeStep9001(stacks, step)
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     lines = file.readlines()
 for i in range(0, len(lines)):
     if (lines[i].endswith("\n")):

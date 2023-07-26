@@ -61,7 +61,7 @@ def getAllSmallDirs(node: Node | Root, size:int) -> list:
             dirs.extend(getAllSmallDirs(child, size=size))
     return dirs
 
-with open(os.path.dirname(__file__) + "\\PuzzleInput.txt", "r") as file:
+with open(os.path.dirname(__file__) + "\\input.txt", "r") as file:
     input = file.readlines()
 input = input[1:]
 commands = []
